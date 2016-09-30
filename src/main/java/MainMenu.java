@@ -15,6 +15,7 @@ public class MainMenu {
         boolean exit = false;
 
         // TODO set up board
+        System.out.println(board);
 
         while (!exit) {
             printMenuMessage();
