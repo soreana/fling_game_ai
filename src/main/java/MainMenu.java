@@ -24,7 +24,6 @@ public class MainMenu {
                 exit = true;
 
             // TODO algorithm things
-
         }
 
     }
@@ -36,6 +35,8 @@ public class MainMenu {
                 switch (rawInput) {
                     case "0":
                         return board.getSolvingAlgorithm("BFS");
+                    case "u":
+                        return board.getSolvingAlgorithm("UserMode");
                     case "x":
                         return null;
                     default:
@@ -52,6 +53,7 @@ public class MainMenu {
 
     private static void printMenuMessage() {
         System.out.println("0. BFS");
+        System.out.println("u. User Mode");
         System.out.println("Please enter your algorithm number, or \'x\' to exit.");
     }
 }
