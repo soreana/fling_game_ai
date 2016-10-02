@@ -26,23 +26,39 @@ abstract public class Board {
             this.j = j;
         }
 
+        private boolean adjacent(int i,int j) {
+            return this.i - i == 1 || i - this.i == 1 || this.j - j == 1 || j - this.j == 1;
+        }
+
         @Override
         public boolean canMoveUp() {
+            for (int j = this.j - 1; j >= 0; j--)
+                if (thereIsANode(i,j) && !adjacent(i,j))
+                    return true;
             return false;
         }
 
         @Override
         public boolean canMoveDown() {
+            for (int j = this.j + 1; j < board.size(); j++)
+                if (thereIsANode(i,j) && !adjacent(i,j))
+                    return true;
             return false;
         }
 
         @Override
         public boolean canMoveLeft() {
+            for (int i = this.i - 1; i >= 0; i--)
+                if (thereIsANode(i,j) && !adjacent(i,j))
+                    return true;
             return false;
         }
 
         @Override
         public boolean canMoveRight() {
+            for( int i = this.i +1 ; i< board.get(j).size() ; i++)
+                if(thereIsANode(i,j) && !adjacent(i,j))
+                    return true;
             return false;
         }
 
@@ -74,6 +90,11 @@ abstract public class Board {
             this.currentNode = currentNode;
         }
 
+        @Override
+        public Ball current(){
+            return currentNode;
+        }
+
         private int calculateNextI(int i, int j) {
             i = i + 1;
 
@@ -100,7 +121,7 @@ abstract public class Board {
             int j = calculateNextJ(i, currentNode.j);
 
             while (true) {
-                if (board.get(j).get(i) != null) {
+                if (thereIsANode(i,j)) {
                     currentNode = board.get(j).get(i);
                     return currentNode;
                 }
@@ -142,7 +163,7 @@ abstract public class Board {
             int j = calculatePreviousJ(i, currentNode.j);
 
             while (true) {
-                if (board.get(j).get(i) != null) {
+                if (thereIsANode(i,j)) {
                     currentNode = board.get(j).get(i);
                     return currentNode;
                 }
@@ -152,8 +173,7 @@ abstract public class Board {
             }
         }
 
-        @Override
-        public boolean currentNodeEquals(Node node) {
+        private boolean currentNodeEquals(Node node) {
             return node == currentNode;
         }
     }
@@ -199,6 +219,10 @@ abstract public class Board {
         return temp;
     }
 
+    private boolean thereIsANode(int i , int j){
+        return board.get(j).get(i) != null;
+    }
+
     @Override
     public String toString() {
         String result = "";
@@ -212,7 +236,7 @@ abstract public class Board {
             for (Node node : aBoard) {
                 if (node == null)
                     result += "|_";
-                else if (showCurrentNode && iterator.currentNodeEquals(node))
+                else if (showCurrentNode && ((Iterator)iterator).currentNodeEquals(node))
                     result += "|C";
                 else
                     result += "|#";
