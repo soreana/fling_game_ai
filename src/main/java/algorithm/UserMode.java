@@ -1,8 +1,9 @@
 package algorithm;
 
+import table.Ball;
 import table.Board;
+import table.BoardIterator;
 
-import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -10,7 +11,6 @@ import java.util.Scanner;
  */
 public class UserMode implements Algorithm {
     private final Board board;
-
 
     private void printWelcomeMessage() {
         System.out.println();
@@ -32,28 +32,44 @@ public class UserMode implements Algorithm {
         boolean exit = false;
 
         printWelcomeMessage();
-        Scanner console = new Scanner(System.in);
         board.showCurrentNode();
-        System.out.println(board);
+        Scanner console = new Scanner(System.in);
+
+        BoardIterator boardIterator = board.getIterator();
+        Ball currentBall = boardIterator.current();
+
         while (!exit) {
+            System.out.println(board);
             switch (console.next()) {
                 case "k":
+                    currentBall.moveUp();
+                    break;
                 case "j":
+                    currentBall.moveDown();
+                    break;
                 case "h":
+                    currentBall.moveLeft();
+                    break;
                 case "l":
+                    currentBall.moveRight();
+                    break;
                 case "n":
-                    board.getIterator().next();
-                    System.out.println(board);
+                    currentBall = boardIterator.next();
                     break;
                 case "p":
-                    board.getIterator().previous();
-                    System.out.println(board);
+                    currentBall = boardIterator.previous();
                     break;
                 case "x":
                     exit = true;
                     break;
                 default:
                     System.out.println("Invalid input.");
+            }
+            if (board.solved()) {
+                System.out.println("You Win.");
+                break;
+            } else if (board.failed()){
+                System.out.println("You Lost.");
             }
         }
         board.doNotShowCurrentNode();
