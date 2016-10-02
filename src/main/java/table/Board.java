@@ -11,12 +11,152 @@ import java.util.Scanner;
  * Created by sinakashipazha on 9/30/16.
  */
 abstract public class Board {
-    private int nodeCount =0;
+    private int nodeCount = 0;
+    private ArrayList<ArrayList<Node>> board;
+    private boolean showCurrentNode = false;
+    private BoardIterator iterator;
 
-    private class Node {
+    // TODO implement these methods
+    private class Node implements Ball {
+        private int i;
+        private int j;
+
+        Node(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+
+        @Override
+        public boolean canMoveUp() {
+            return false;
+        }
+
+        @Override
+        public boolean canMoveDown() {
+            return false;
+        }
+
+        @Override
+        public boolean canMoveLeft() {
+            return false;
+        }
+
+        @Override
+        public boolean canMoveRight() {
+            return false;
+        }
+
+        @Override
+        public void moveUp() {
+
+        }
+
+        @Override
+        public void moveDown() {
+
+        }
+
+        @Override
+        public void moveLeft() {
+
+        }
+
+        @Override
+        public void moveRight() {
+
+        }
     }
 
-    private ArrayList<ArrayList<Node>> board;
+    private class Iterator implements BoardIterator {
+        private Node currentNode = null;
+
+        private Iterator(Node currentNode) {
+            this.currentNode = currentNode;
+        }
+
+        private int calculateNextI(int i, int j) {
+            i = i + 1;
+
+            if (i >= board.get(j).size()) {
+                i = 0;
+            }
+
+            return i;
+        }
+
+        private int calculateNextJ(int i, int j) {
+            if (i == 0)
+                j++;
+
+            if (j >= board.size())
+                j = 0;
+
+            return j;
+        }
+
+        @Override
+        public Ball next() {
+            int i = calculateNextI(currentNode.i, currentNode.j);
+            int j = calculateNextJ(i, currentNode.j);
+
+            while (true) {
+                if (board.get(j).get(i) != null) {
+                    currentNode = board.get(j).get(i);
+                    return currentNode;
+                }
+
+                i = calculateNextI(i, j);
+                j = calculateNextJ(i, j);
+            }
+
+        }
+
+        private int calculatePreviousI(int i, int j) {
+            i--;
+
+            if (i < 0)
+                if (j == 0)
+                    i = board.get(board.size() - 1).size() - 1;
+                else
+                    i = board.get(j - 1).size() - 1;
+
+            return i;
+        }
+
+        private int calculatePreviousJ(int i, int j) {
+            if (j == 0) {
+                if (i == board.get(board.size() - 1).size() - 1)
+                    j--;
+            } else if (i == (board.get(j - 1).size() - 1))
+                j--;
+
+            if (j < 0)
+                j = board.size() - 1;
+
+            return j;
+        }
+
+        @Override
+        public Ball previous() {
+            int i = calculatePreviousI(currentNode.i, currentNode.j);
+            int j = calculatePreviousJ(i, currentNode.j);
+
+            while (true) {
+                if (board.get(j).get(i) != null) {
+                    currentNode = board.get(j).get(i);
+                    return currentNode;
+                }
+
+                i = calculatePreviousI(i, j);
+                j = calculatePreviousJ(i, j);
+            }
+        }
+
+        @Override
+        public boolean currentNodeEquals(Node node) {
+            return node == currentNode;
+        }
+    }
 
     Board() {
         board = new ArrayList<>();
@@ -30,22 +170,28 @@ abstract public class Board {
         }
 
         inputBoard(inputFile);
+
+        for (ArrayList<Node> temp : board)
+            for (Node node : temp)
+                if (iterator == null && node != null)
+                    iterator = new Iterator(node);
     }
 
     private void inputBoard(Scanner inputFile) {
+        int j = 0;
         while (inputFile.hasNext()) {
-            board.add(putALineToBoard(inputFile.nextLine()));
+            board.add(putALineToBoard(inputFile.nextLine(), j++));
         }
     }
 
-    private ArrayList<Node> putALineToBoard(String line) {
+    private ArrayList<Node> putALineToBoard(String line, int j) {
         ArrayList<Node> temp = new ArrayList<>();
 
         for (int i = 0; i < line.length(); i++) {
             if (line.charAt(i) == '0')
                 temp.add(null);
             else if (line.charAt(i) == '1') {
-                temp.add(new Node());
+                temp.add(new Node(i, j));
                 nodeCount++;
             }
         }
@@ -63,10 +209,11 @@ abstract public class Board {
         result += "_\n";
 
         for (ArrayList<Node> aBoard : board) {
-            tableWidth = aBoard.size();
-            for (int i = 0; i < tableWidth; i++) {
-                if (aBoard.get(i) == null)
+            for (Node node : aBoard) {
+                if (node == null)
                     result += "|_";
+                else if (showCurrentNode && iterator.currentNodeEquals(node))
+                    result += "|C";
                 else
                     result += "|#";
             }
@@ -76,8 +223,30 @@ abstract public class Board {
         return result;
     }
 
+    public BoardIterator getIterator() {
+        return iterator;
+    }
+
     /**
-     *  Check if there is a node in board that can moves.
+     * This method turn on showCurrentNode flag. If this flag turned on
+     * position of current node will show up by 'C' rather than '#'.
+     */
+
+    public void showCurrentNode() {
+        showCurrentNode = true;
+    }
+
+    /**
+     * This method turn off showCurrentNode flag. If this flag turned of
+     * position of current node wouldn't show up.
+     */
+
+    public void doNotShowCurrentNode() {
+        showCurrentNode = false;
+    }
+
+    /**
+     * Check if there is a node in board that can moves.
      *
      * @return true if board already solved, false otherwise.
      */
@@ -88,8 +257,8 @@ abstract public class Board {
 
     // TODO implement this method
 
-    public boolean canMove(Node node) {
-        return false;
+    public boolean canMove(Ball ball) {
+        return ball.canMoveUp() || ball.canMoveDown() || ball.canMoveLeft() || ball.canMoveRight();
     }
 
 
@@ -101,11 +270,11 @@ abstract public class Board {
      * @return true if there is a node that can moves
      */
 
-    public boolean canMove(){
-        for (ArrayList<Node> line : board){
-            for( Node node : line){
+    public boolean canMove() {
+        for (ArrayList<Node> line : board) {
+            for (Node node : line) {
                 if (node == null) continue;
-                if ( canMove(node))
+                if (canMove(node))
                     return true;
             }
         }
@@ -119,7 +288,7 @@ abstract public class Board {
      * @return true if board failed, false otherwise
      */
 
-    public boolean failed(){
+    public boolean failed() {
         return !solved() && !canMove();
     }
 

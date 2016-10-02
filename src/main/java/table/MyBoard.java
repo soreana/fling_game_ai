@@ -13,7 +13,7 @@ public class MyBoard extends Board {
         if("bfs".equals(algorithmName.toLowerCase()))
             return new BFS();
         if("usermode".equals(algorithmName.toLowerCase()))
-            return new UserMode();
+            return new UserMode(this);
         throw new RuntimeException("Algorithm not found.");
     }
 }

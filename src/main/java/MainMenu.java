@@ -14,7 +14,6 @@ public class MainMenu {
     public static void main(String[] args) {
         boolean exit = false;
 
-        // TODO set up board
         System.out.println(board);
 
         while (!exit) {
@@ -22,8 +21,10 @@ public class MainMenu {
             Algorithm algorithm = chooseAlgorithm();
             if(algorithm == null)
                 exit = true;
-
-            // TODO algorithm things
+            else {
+                // TODO algorithm things
+                algorithm.start();
+            }
         }
 
     }
