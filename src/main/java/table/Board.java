@@ -16,7 +16,6 @@ abstract public class Board {
     private boolean showCurrentNode = false;
     private BoardIterator iterator;
 
-    // TODO implement these methods
     private class Node implements Ball {
         private int i;
         private int j;
@@ -26,14 +25,14 @@ abstract public class Board {
             this.j = j;
         }
 
-        private boolean adjacent(int i,int j) {
+        private boolean adjacent(int i, int j) {
             return this.i - i == 1 || i - this.i == 1 || this.j - j == 1 || j - this.j == 1;
         }
 
         @Override
         public boolean canMoveUp() {
             for (int j = this.j - 1; j >= 0; j--)
-                if (thereIsANode(i,j) && !adjacent(i,j))
+                if (thereIsANode(j, i) && !adjacent(i, j))
                     return true;
             return false;
         }
@@ -41,7 +40,7 @@ abstract public class Board {
         @Override
         public boolean canMoveDown() {
             for (int j = this.j + 1; j < board.size(); j++)
-                if (thereIsANode(i,j) && !adjacent(i,j))
+                if (thereIsANode(j, i) && !adjacent(i, j))
                     return true;
             return false;
         }
@@ -49,37 +48,96 @@ abstract public class Board {
         @Override
         public boolean canMoveLeft() {
             for (int i = this.i - 1; i >= 0; i--)
-                if (thereIsANode(i,j) && !adjacent(i,j))
+                if (thereIsANode(j, i) && !adjacent(i, j))
                     return true;
             return false;
         }
 
         @Override
         public boolean canMoveRight() {
-            for( int i = this.i +1 ; i< board.get(j).size() ; i++)
-                if(thereIsANode(i,j) && !adjacent(i,j))
+            for (int i = this.i + 1; i < board.get(j).size(); i++)
+                if (thereIsANode(j, i) && !adjacent(i, j))
                     return true;
             return false;
         }
 
+        private void removeNode(Node node){
+            board.get(node.j).add(node.i,null);
+            board.get(node.j).remove(node.i+1);
+        }
+
+        private void moveNodeTo(int j ,int i ){
+            board.get(j).add(i,this);
+            board.get(j).remove(i+1);
+            this.j = j;
+            this.i = i;
+        }
+
         @Override
         public void moveUp() {
+            for (int j = this.j - 1; j >= 0; j--)
+                if (thereIsANode(j, i) && !adjacent(i, j)) {
+                    removeNode(this);
 
+                    moveNodeTo(j+1,this.i);
+
+                    while (j>=0 && thereIsANode(j,i))
+                        j--;
+
+                    removeNode(board.get(j+1).get(i));
+
+                    return;
+                }
         }
 
         @Override
         public void moveDown() {
+            for (int j = this.j + 1; j < board.size(); j++)
+                if (thereIsANode(j, i) && !adjacent(i, j)){
+                    removeNode(this);
+
+                    moveNodeTo(j-1,i);
+
+                    while (j<board.size() && thereIsANode(j,i))
+                        j++;
+
+                    removeNode(board.get(j-1).get(i));
+
+                    return;
+                }
 
         }
 
         @Override
         public void moveLeft() {
+            for (int i = this.i - 1; i >= 0; i--)
+                if (thereIsANode(j, i) && !adjacent(i, j)){
+                    removeNode(this);
 
+                    moveNodeTo(this.j,i+1);
+
+                    while (i>=0 && thereIsANode(j,i))
+                        i--;
+
+                    removeNode(board.get(j).get(i+1));
+                    return;
+                }
         }
 
         @Override
         public void moveRight() {
+            for (int i = this.i + 1; i < board.get(j).size(); i++)
+                if (thereIsANode(j, i) && !adjacent(i, j)){
+                    removeNode(this);
 
+                    moveNodeTo(this.j,i-1);
+
+                    while (i<board.get(j).size() && thereIsANode(j,i))
+                        i++;
+
+                    removeNode(board.get(j).get(i-1));
+                    return;
+                }
         }
     }
 
@@ -91,7 +149,7 @@ abstract public class Board {
         }
 
         @Override
-        public Ball current(){
+        public Ball current() {
             return currentNode;
         }
 
@@ -121,7 +179,7 @@ abstract public class Board {
             int j = calculateNextJ(i, currentNode.j);
 
             while (true) {
-                if (thereIsANode(i,j)) {
+                if (thereIsANode(j, i)) {
                     currentNode = board.get(j).get(i);
                     return currentNode;
                 }
@@ -163,7 +221,7 @@ abstract public class Board {
             int j = calculatePreviousJ(i, currentNode.j);
 
             while (true) {
-                if (thereIsANode(i,j)) {
+                if (thereIsANode(j, i)) {
                     currentNode = board.get(j).get(i);
                     return currentNode;
                 }
@@ -219,7 +277,7 @@ abstract public class Board {
         return temp;
     }
 
-    private boolean thereIsANode(int i , int j){
+    private boolean thereIsANode(int j, int i) {
         return board.get(j).get(i) != null;
     }
 
@@ -236,7 +294,7 @@ abstract public class Board {
             for (Node node : aBoard) {
                 if (node == null)
                     result += "|_";
-                else if (showCurrentNode && ((Iterator)iterator).currentNodeEquals(node))
+                else if (showCurrentNode && ((Iterator) iterator).currentNodeEquals(node))
                     result += "|C";
                 else
                     result += "|#";
