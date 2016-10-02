@@ -85,6 +85,7 @@ abstract public class Board {
                         j--;
 
                     removeNode(board.get(j+1).get(i));
+                    nodeCount--;
 
                     return;
                 }
@@ -102,6 +103,7 @@ abstract public class Board {
                         j++;
 
                     removeNode(board.get(j-1).get(i));
+                    nodeCount--;
 
                     return;
                 }
@@ -120,6 +122,8 @@ abstract public class Board {
                         i--;
 
                     removeNode(board.get(j).get(i+1));
+                    nodeCount--;
+
                     return;
                 }
         }
@@ -136,6 +140,8 @@ abstract public class Board {
                         i++;
 
                     removeNode(board.get(j).get(i-1));
+                    nodeCount--;
+
                     return;
                 }
         }
@@ -336,8 +342,6 @@ abstract public class Board {
     public boolean solved() {
         return !canMove() && nodeCount <= 1;
     }
-
-    // TODO implement this method
 
     public boolean canMove(Ball ball) {
         return ball.canMoveUp() || ball.canMoveDown() || ball.canMoveLeft() || ball.canMoveRight();
