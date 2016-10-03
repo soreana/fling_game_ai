@@ -1,7 +1,7 @@
 package table;
 
 import algorithm.Algorithm;
-import algorithm.BFS;
+import algorithm.DFS;
 import algorithm.UserMode;
 
 /**
@@ -11,7 +11,7 @@ public class MyBoard extends Board {
 
     public Algorithm getSolvingAlgorithm(String algorithmName) {
         if("bfs".equals(algorithmName.toLowerCase()))
-            return new BFS();
+            return new DFS();
         if("usermode".equals(algorithmName.toLowerCase()))
             return new UserMode(this);
         throw new RuntimeException("Algorithm not found.");
