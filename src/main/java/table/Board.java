@@ -14,7 +14,6 @@ abstract public class Board {
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
     private boolean showCurrentNode = false;
-    private BoardIterator iterator;
 
     private class Node implements Ball {
         private int i;
@@ -61,14 +60,14 @@ abstract public class Board {
             return false;
         }
 
-        private void removeNode(Node node){
-            board.get(node.j).add(node.i,null);
-            board.get(node.j).remove(node.i+1);
+        private void removeNode(Node node) {
+            board.get(node.j).add(node.i, null);
+            board.get(node.j).remove(node.i + 1);
         }
 
-        private void moveNodeTo(int j ,int i ){
-            board.get(j).add(i,this);
-            board.get(j).remove(i+1);
+        private void moveNodeTo(int j, int i) {
+            board.get(j).add(i, this);
+            board.get(j).remove(i + 1);
             this.j = j;
             this.i = i;
         }
@@ -79,12 +78,12 @@ abstract public class Board {
                 if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
 
-                    moveNodeTo(j+1,this.i);
+                    moveNodeTo(j + 1, this.i);
 
-                    while (j>=0 && thereIsANode(j,i))
+                    while (j >= 0 && thereIsANode(j, i))
                         j--;
 
-                    removeNode(board.get(j+1).get(i));
+                    removeNode(board.get(j + 1).get(i));
                     nodeCount--;
 
                     return;
@@ -94,15 +93,15 @@ abstract public class Board {
         @Override
         public void moveDown() {
             for (int j = this.j + 1; j < board.size(); j++)
-                if (thereIsANode(j, i) && !adjacent(i, j)){
+                if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
 
-                    moveNodeTo(j-1,i);
+                    moveNodeTo(j - 1, i);
 
-                    while (j<board.size() && thereIsANode(j,i))
+                    while (j < board.size() && thereIsANode(j, i))
                         j++;
 
-                    removeNode(board.get(j-1).get(i));
+                    removeNode(board.get(j - 1).get(i));
                     nodeCount--;
 
                     return;
@@ -113,15 +112,15 @@ abstract public class Board {
         @Override
         public void moveLeft() {
             for (int i = this.i - 1; i >= 0; i--)
-                if (thereIsANode(j, i) && !adjacent(i, j)){
+                if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
 
-                    moveNodeTo(this.j,i+1);
+                    moveNodeTo(this.j, i + 1);
 
-                    while (i>=0 && thereIsANode(j,i))
+                    while (i >= 0 && thereIsANode(j, i))
                         i--;
 
-                    removeNode(board.get(j).get(i+1));
+                    removeNode(board.get(j).get(i + 1));
                     nodeCount--;
 
                     return;
@@ -131,15 +130,15 @@ abstract public class Board {
         @Override
         public void moveRight() {
             for (int i = this.i + 1; i < board.get(j).size(); i++)
-                if (thereIsANode(j, i) && !adjacent(i, j)){
+                if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
 
-                    moveNodeTo(this.j,i-1);
+                    moveNodeTo(this.j, i - 1);
 
-                    while (i<board.get(j).size() && thereIsANode(j,i))
+                    while (i < board.get(j).size() && thereIsANode(j, i))
                         i++;
 
-                    removeNode(board.get(j).get(i-1));
+                    removeNode(board.get(j).get(i - 1));
                     nodeCount--;
 
                     return;
@@ -150,8 +149,13 @@ abstract public class Board {
     private class Iterator implements BoardIterator {
         private Node currentNode = null;
 
-        private Iterator(Node currentNode) {
-            this.currentNode = currentNode;
+        private Iterator() {
+            for (ArrayList<Node> row : board)
+                for (Node node : row)
+                    if (node != null) {
+                        currentNode = node;
+                        return;
+                    }
         }
 
         @Override
@@ -237,6 +241,11 @@ abstract public class Board {
             }
         }
 
+        @Override
+        public String toString(){
+            return tableWithCurrentToString(this);
+        }
+
         private boolean currentNodeEquals(Node node) {
             return node == currentNode;
         }
@@ -254,11 +263,6 @@ abstract public class Board {
         }
 
         inputBoard(inputFile);
-
-        for (ArrayList<Node> temp : board)
-            for (Node node : temp)
-                if (iterator == null && node != null)
-                    iterator = new Iterator(node);
     }
 
     private void inputBoard(Scanner inputFile) {
@@ -287,8 +291,7 @@ abstract public class Board {
         return board.get(j).get(i) != null;
     }
 
-    @Override
-    public String toString() {
+    private String tableWithCurrentToString(Iterator iterator) {
         String result = "";
         int tableWidth = board.get(0).size();
 
@@ -300,7 +303,7 @@ abstract public class Board {
             for (Node node : aBoard) {
                 if (node == null)
                     result += "|_";
-                else if (showCurrentNode && ((Iterator) iterator).currentNodeEquals(node))
+                else if (iterator != null && iterator.currentNodeEquals(node))
                     result += "|C";
                 else
                     result += "|#";
@@ -311,8 +314,13 @@ abstract public class Board {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return tableWithCurrentToString(null);
+    }
+
     public BoardIterator getIterator() {
-        return iterator;
+        return new Iterator();
     }
 
     /**
@@ -320,6 +328,7 @@ abstract public class Board {
      * position of current node will show up by 'C' rather than '#'.
      */
 
+    @Deprecated
     public void showCurrentNode() {
         showCurrentNode = true;
     }
@@ -329,6 +338,7 @@ abstract public class Board {
      * position of current node wouldn't show up.
      */
 
+    @Deprecated
     public void doNotShowCurrentNode() {
         showCurrentNode = false;
     }

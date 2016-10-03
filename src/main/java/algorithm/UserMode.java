@@ -32,14 +32,13 @@ public class UserMode implements Algorithm {
         boolean exit = false;
 
         printWelcomeMessage();
-        board.showCurrentNode();
         Scanner console = new Scanner(System.in);
 
         BoardIterator boardIterator = board.getIterator();
         Ball currentBall = boardIterator.current();
 
         while (!exit) {
-            System.out.println(board);
+            System.out.println(boardIterator);
             switch (console.next()) {
                 case "k":
                     currentBall.moveUp();
@@ -72,6 +71,5 @@ public class UserMode implements Algorithm {
                 System.out.println("You Lost.");
             }
         }
-        board.doNotShowCurrentNode();
     }
 }
