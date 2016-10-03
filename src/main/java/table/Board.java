@@ -13,7 +13,6 @@ import java.util.Scanner;
 abstract public class Board {
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
-    private boolean showCurrentNode = false;
 
     private class Node implements Ball {
         private int i;
@@ -323,25 +322,6 @@ abstract public class Board {
         return new Iterator();
     }
 
-    /**
-     * This method turn on showCurrentNode flag. If this flag turned on
-     * position of current node will show up by 'C' rather than '#'.
-     */
-
-    @Deprecated
-    public void showCurrentNode() {
-        showCurrentNode = true;
-    }
-
-    /**
-     * This method turn off showCurrentNode flag. If this flag turned of
-     * position of current node wouldn't show up.
-     */
-
-    @Deprecated
-    public void doNotShowCurrentNode() {
-        showCurrentNode = false;
-    }
 
     /**
      * Check if there is a node in board that can moves.
