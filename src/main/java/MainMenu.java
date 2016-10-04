@@ -35,7 +35,7 @@ public class MainMenu {
                 String rawInput = console.next();
                 switch (rawInput) {
                     case "0":
-                        return board.getSolvingAlgorithm("BFS");
+                        return board.getSolvingAlgorithm("DFS");
                     case "u":
                         return board.getSolvingAlgorithm("UserMode");
                     case "x":
@@ -53,7 +53,7 @@ public class MainMenu {
     }
 
     private static void printMenuMessage() {
-        System.out.println("0. BFS");
+        System.out.println("0. DFS");
         System.out.println("u. User Mode");
         System.out.println("Please enter your algorithm number, or \'x\' to exit.");
     }

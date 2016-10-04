@@ -10,8 +10,8 @@ import algorithm.UserMode;
 public class MyBoard extends Board {
 
     public Algorithm getSolvingAlgorithm(String algorithmName) {
-        if("bfs".equals(algorithmName.toLowerCase()))
-            return new DFS();
+        if("dfs".equals(algorithmName.toLowerCase()))
+            return new DFS(this);
         if("usermode".equals(algorithmName.toLowerCase()))
             return new UserMode(this);
         throw new RuntimeException("Algorithm not found.");
