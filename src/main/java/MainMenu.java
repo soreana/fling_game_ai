@@ -9,6 +9,7 @@ import java.util.Scanner;
  */
 public class MainMenu {
     private static Scanner console = new Scanner(System.in);
+    private static Board board = new MyBoard() ;
 
     public static void main(String[] args) {
         boolean exit = false;
@@ -27,7 +28,7 @@ public class MainMenu {
     }
 
     private static Algorithm chooseAlgorithm(){
-        Board board = new MyBoard();
+        board.reset();
         while (true) {
             try {
                 String rawInput = console.next();

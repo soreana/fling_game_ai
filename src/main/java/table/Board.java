@@ -10,9 +10,14 @@ import java.util.Scanner;
 /**
  * Created by sinakashipazha on 9/30/16.
  */
+
 abstract public class Board {
+    private ArrayList<ArrayList<Node>> initialBoard;
+    final private int initialNodeCount ;
+
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
+
 
     private class Node implements Ball {
         private int i;
@@ -21,6 +26,11 @@ abstract public class Board {
         Node(int i, int j) {
             this.i = i;
             this.j = j;
+        }
+
+        Node(Node node){
+            this.i = node.i;
+            this.j = node.j;
         }
 
         private boolean adjacent(int i, int j) {
@@ -251,7 +261,7 @@ abstract public class Board {
     }
 
     Board() {
-        board = new ArrayList<>();
+        initialBoard = new ArrayList<>();
         File fling = new File("target/fling.txt");
         Scanner inputFile = null;
 
@@ -262,12 +272,32 @@ abstract public class Board {
         }
 
         inputBoard(inputFile);
+
+        board = cloneBoard();
+        initialNodeCount = nodeCount;
+    }
+
+    private ArrayList<ArrayList<Node>> cloneBoard(){
+        ArrayList<ArrayList<Node>> temp = new ArrayList<>();
+
+        for (int j = 0; j < initialBoard.size(); j++) {
+            temp.add(new ArrayList<Node>());
+
+            for (Node node : initialBoard.get(j)) {
+                if(node == null)
+                    temp.get(j).add(null);
+                else
+                    temp.get(j).add(new Node(node));
+            }
+        }
+
+        return temp;
     }
 
     private void inputBoard(Scanner inputFile) {
         int j = 0;
         while (inputFile.hasNext()) {
-            board.add(putALineToBoard(inputFile.nextLine(), j++));
+            initialBoard.add(putALineToBoard(inputFile.nextLine(), j++));
         }
     }
 
@@ -322,7 +352,6 @@ abstract public class Board {
         return new Iterator();
     }
 
-
     /**
      * Check if there is a node in board that can moves.
      *
@@ -332,6 +361,23 @@ abstract public class Board {
     public boolean solved() {
         return !canMove() && nodeCount <= 1;
     }
+
+    /**
+     * Restore board's nodes to their initial states.
+     */
+
+    public void reset() {
+        nodeCount = initialNodeCount;
+        board = cloneBoard();
+    }
+
+    /**
+     * If ball can move in any direction returns true; false if
+     * there is no move for passed ball.
+     *
+     * @param ball Method will test this parameter moves.
+     * @return true if there is at least one move for passed ball, false otherwise.
+     */
 
     public boolean canMove(Ball ball) {
         return ball.canMoveUp() || ball.canMoveDown() || ball.canMoveLeft() || ball.canMoveRight();
