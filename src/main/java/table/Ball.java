@@ -12,12 +12,11 @@ public interface Ball {
 
     boolean canMoveRight();
 
-    void moveUp();
+    Move moveUp();
 
-    void moveDown();
+    Move moveDown();
 
-    void moveLeft();
+    Move moveLeft();
 
-    void moveRight();
-
+    Move moveRight();
 }

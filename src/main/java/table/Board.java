@@ -13,11 +13,55 @@ import java.util.Scanner;
 
 abstract public class Board {
     private ArrayList<ArrayList<Node>> initialBoard;
-    final private int initialNodeCount ;
+    final private int initialNodeCount;
 
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
 
+    private class Move implements table.Move{
+        private Node deletedNode = null;
+        private Node movedNode = null;
+        private int startPointI, startPointJ;
+        final private MoveState moveState;
+
+        private Move(MoveState canNotMove) {
+            moveState = canNotMove;
+        }
+
+        private boolean canNotUndo() {
+            return !thereIsANode(deletedNode.j, deletedNode.i) &&
+                    !thereIsANode(startPointJ, startPointI) &&
+                    board.get(movedNode.j).get(movedNode.i) == movedNode;
+        }
+
+        private void undo() {
+            if (canNotUndo())
+                throw new RuntimeException("Can't undo move.");
+
+            // undo move
+            board.get(deletedNode.j).set(deletedNode.i, deletedNode);
+
+            board.get(movedNode.j).set(movedNode.i, null);
+            board.get(startPointJ).set(startPointI, movedNode);
+        }
+
+        private Move(Node deletedNode, Node movedNode, MoveState moveState
+                , int startPointJ, int startPintI) {
+            this.deletedNode = deletedNode;
+            this.movedNode = movedNode;
+            this.moveState = moveState;
+            this.startPointJ = startPointJ;
+            this.startPointI = startPintI;
+        }
+    }
+
+    private enum MoveState {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        CAN_NOT_MOVE;
+    }
 
     private class Node implements Ball {
         private int i;
@@ -28,7 +72,7 @@ abstract public class Board {
             this.j = j;
         }
 
-        Node(Node node){
+        Node(Node node) {
             this.i = node.i;
             this.j = node.j;
         }
@@ -69,9 +113,9 @@ abstract public class Board {
             return false;
         }
 
-        private void removeNode(Node node) {
+        private Node removeNode(Node node) {
             board.get(node.j).add(node.i, null);
-            board.get(node.j).remove(node.i + 1);
+            return board.get(node.j).remove(node.i + 1);
         }
 
         private void moveNodeTo(int j, int i) {
@@ -82,7 +126,8 @@ abstract public class Board {
         }
 
         @Override
-        public void moveUp() {
+        public Move moveUp() {
+            int startPointJ = this.j, startPointI = this.i;
             for (int j = this.j - 1; j >= 0; j--)
                 if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
@@ -92,15 +137,18 @@ abstract public class Board {
                     while (j >= 0 && thereIsANode(j, i))
                         j--;
 
-                    removeNode(board.get(j + 1).get(i));
+                    Node removedNode = removeNode(board.get(j + 1).get(i));
                     nodeCount--;
 
-                    return;
+                    return new Move(removedNode, this, MoveState.UP, startPointJ, startPointI);
                 }
+
+            return new Move(MoveState.CAN_NOT_MOVE);
         }
 
         @Override
-        public void moveDown() {
+        public Move moveDown() {
+            int startPointJ = this.j, startPointI = this.i;
             for (int j = this.j + 1; j < board.size(); j++)
                 if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
@@ -110,16 +158,18 @@ abstract public class Board {
                     while (j < board.size() && thereIsANode(j, i))
                         j++;
 
-                    removeNode(board.get(j - 1).get(i));
+                    Node removedNode = removeNode(board.get(j - 1).get(i));
                     nodeCount--;
 
-                    return;
+                    return new Move(removedNode, this, MoveState.DOWN, startPointJ, startPointI);
                 }
 
+            return new Move(MoveState.CAN_NOT_MOVE);
         }
 
         @Override
-        public void moveLeft() {
+        public Move moveLeft() {
+            int startPointJ = this.j, startPointI = this.i;
             for (int i = this.i - 1; i >= 0; i--)
                 if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
@@ -129,15 +179,18 @@ abstract public class Board {
                     while (i >= 0 && thereIsANode(j, i))
                         i--;
 
-                    removeNode(board.get(j).get(i + 1));
+                    Node removedNode = removeNode(board.get(j).get(i + 1));
                     nodeCount--;
 
-                    return;
+                    return new Move(removedNode, this, MoveState.LEFT, startPointJ, startPointI);
                 }
+
+            return new Move(MoveState.CAN_NOT_MOVE);
         }
 
         @Override
-        public void moveRight() {
+        public Move moveRight() {
+            int startPointJ = this.j, startPointI = this.i;
             for (int i = this.i + 1; i < board.get(j).size(); i++)
                 if (thereIsANode(j, i) && !adjacent(i, j)) {
                     removeNode(this);
@@ -147,11 +200,13 @@ abstract public class Board {
                     while (i < board.get(j).size() && thereIsANode(j, i))
                         i++;
 
-                    removeNode(board.get(j).get(i - 1));
+                    Node removedNode = removeNode(board.get(j).get(i - 1));
                     nodeCount--;
 
-                    return;
+                    return new Move(removedNode, this, MoveState.RIGHT, startPointJ, startPointI);
                 }
+
+            return new Move(MoveState.CAN_NOT_MOVE);
         }
     }
 
@@ -251,7 +306,7 @@ abstract public class Board {
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return tableWithCurrentToString(this);
         }
 
@@ -277,14 +332,14 @@ abstract public class Board {
         initialNodeCount = nodeCount;
     }
 
-    private ArrayList<ArrayList<Node>> cloneBoard(){
+    private ArrayList<ArrayList<Node>> cloneBoard() {
         ArrayList<ArrayList<Node>> temp = new ArrayList<>();
 
         for (int j = 0; j < initialBoard.size(); j++) {
             temp.add(new ArrayList<Node>());
 
             for (Node node : initialBoard.get(j)) {
-                if(node == null)
+                if (node == null)
                     temp.get(j).add(null);
                 else
                     temp.get(j).add(new Node(node));
