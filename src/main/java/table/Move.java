@@ -5,4 +5,5 @@ package table;
  */
 
 public interface Move {
+    void undo();
 }

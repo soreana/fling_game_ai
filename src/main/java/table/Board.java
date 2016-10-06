@@ -18,7 +18,7 @@ abstract public class Board {
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
 
-    private class Move implements table.Move{
+    private class Move implements table.Move {
         private Node deletedNode = null;
         private Node movedNode = null;
         private int startPointI, startPointJ;
@@ -28,14 +28,14 @@ abstract public class Board {
             moveState = canNotMove;
         }
 
-        private boolean canNotUndo() {
+        private boolean canUndo() {
             return !thereIsANode(deletedNode.j, deletedNode.i) &&
                     !thereIsANode(startPointJ, startPointI) &&
                     board.get(movedNode.j).get(movedNode.i) == movedNode;
         }
 
-        private void undo() {
-            if (canNotUndo())
+        public void undo() {
+            if (!canUndo())
                 throw new RuntimeException("Can't undo move.");
 
             // undo move
@@ -43,6 +43,10 @@ abstract public class Board {
 
             board.get(movedNode.j).set(movedNode.i, null);
             board.get(startPointJ).set(startPointI, movedNode);
+
+            movedNode.i = startPointI;
+            movedNode.j = startPointJ;
+            nodeCount++;
         }
 
         private Move(Node deletedNode, Node movedNode, MoveState moveState

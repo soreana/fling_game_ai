@@ -3,6 +3,7 @@ package algorithm;
 import table.Ball;
 import table.Board;
 import table.BoardIterator;
+import table.Move;
 
 import java.util.Scanner;
 
@@ -36,27 +37,31 @@ public class UserMode implements Algorithm {
 
         BoardIterator boardIterator = board.getIterator();
         Ball currentBall = boardIterator.current();
+        Move move = null;
 
         while (!exit) {
             System.out.println(boardIterator);
             switch (console.next()) {
                 case "k":
-                    currentBall.moveUp();
+                    move = currentBall.moveUp();
                     break;
                 case "j":
-                    currentBall.moveDown();
+                    move = currentBall.moveDown();
                     break;
                 case "h":
-                    currentBall.moveLeft();
+                    move = currentBall.moveLeft();
                     break;
                 case "l":
-                    currentBall.moveRight();
+                    move = currentBall.moveRight();
                     break;
                 case "n":
                     currentBall = boardIterator.next();
                     break;
                 case "p":
                     currentBall = boardIterator.previous();
+                    break;
+                case "u":
+                    move.undo();
                     break;
                 case "x":
                     exit = true;
