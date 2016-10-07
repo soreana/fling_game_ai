@@ -8,6 +8,7 @@ import java.util.Scanner;
  * Created by sinakashipazha on 9/30/16.
  */
 public class MainMenu {
+    private static Board board = new MyBoard();
 
     public static void main(String[] args) {
 
@@ -23,11 +24,10 @@ public class MainMenu {
 
     private static Algorithm chooseAlgorithm() {
         Scanner console = new Scanner(System.in);
-        Board board = new MyBoard();
+        board.reset();
 
         while (true) {
             try {
-                board.reset();
                 String rawInput = console.next();
                 switch (rawInput) {
                     case "0":
