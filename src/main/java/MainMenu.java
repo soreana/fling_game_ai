@@ -8,29 +8,26 @@ import java.util.Scanner;
  * Created by sinakashipazha on 9/30/16.
  */
 public class MainMenu {
-    private static Scanner console = new Scanner(System.in);
-    private static Board board = new MyBoard() ;
 
     public static void main(String[] args) {
-        boolean exit = false;
 
-        while (!exit) {
+        while (true) {
             printMenuMessage();
             Algorithm algorithm = chooseAlgorithm();
-            if(algorithm == null)
-                exit = true;
-            else {
-                // TODO algorithm things
-                algorithm.start();
-            }
-        }
 
+            if (algorithm == null) break;
+
+            algorithm.start();
+        }
     }
 
-    private static Algorithm chooseAlgorithm(){
-        board.reset();
+    private static Algorithm chooseAlgorithm() {
+        Scanner console = new Scanner(System.in);
+        Board board = new MyBoard();
+
         while (true) {
             try {
+                board.reset();
                 String rawInput = console.next();
                 switch (rawInput) {
                     case "0":
@@ -44,7 +41,7 @@ public class MainMenu {
                 }
             } catch (RuntimeException r) {
                 if (r.getMessage().equals("Algorithm not found.")) {
-                    System.out.println((char) 27 + "[31mErr : "+ "Incorrect input, try again."+ (char)27 + "[0m" );
+                    System.out.println((char) 27 + "[31mErr : " + "Incorrect input, try again." + (char) 27 + "[0m");
                     System.out.print("Try again: ");
                 }
             }
@@ -54,6 +51,7 @@ public class MainMenu {
     private static void printMenuMessage() {
         System.out.println("0. DFS");
         System.out.println("u. User Mode");
-        System.out.println("Please enter your algorithm number, or \'x\' to exit.");
+        System.out.println("x. Exit");
+        System.out.print("Please enter your command: ");
     }
 }
