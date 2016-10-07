@@ -47,7 +47,6 @@ public class DFS implements Algorithm {
 
     @Override
     public void start() {
-        board.reset();
         runDFSAlgorithm();
     }
 
