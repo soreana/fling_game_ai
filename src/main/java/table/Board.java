@@ -1,11 +1,13 @@
 package table;
 
 import algorithm.Algorithm;
+import javafx.geometry.Pos;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 /**
  * Created by sinakashipazha on 9/30/16.
@@ -18,14 +20,31 @@ abstract public class Board {
     private int nodeCount = 0;
     private ArrayList<ArrayList<Node>> board;
 
-    private class Move implements table.Move {
+    public ArrayList<PossibleMove> getPossibleMoves() {
+        ArrayList<PossibleMove> result = new ArrayList<>();
+
+        for (ArrayList<Node> row : board)
+            for (Node node : row)
+                if (node != null)
+                    result.addAll(node.getPossibleMoves());
+
+        return result;
+    }
+
+    private class Move implements table.Move, PossibleMove {
         private Node deletedNode = null;
         private Node movedNode = null;
         private int startPointI, startPointJ;
         final private MoveState moveState;
+        private String stringRepresentation;
 
         private Move(MoveState canNotMove) {
             moveState = canNotMove;
+        }
+
+        private Move(Node movedNode, MoveState moveState) {
+            this.movedNode = movedNode;
+            this.moveState = moveState;
         }
 
         private boolean canUndo() {
@@ -56,6 +75,44 @@ abstract public class Board {
             this.moveState = moveState;
             this.startPointJ = startPointJ;
             this.startPointI = startPintI;
+        }
+
+        @Override
+        public table.Move move() {
+            Move result = null;
+
+            String stringRepresentationOfThisMove = "Move: [" + movedNode + " - " + moveState.toString().toLowerCase() + "]\n" ;
+
+            switch (moveState) {
+                case UP:
+                    result = movedNode.moveUp();
+                    break;
+                case DOWN:
+                    result = movedNode.moveDown();
+                    break;
+                case LEFT:
+                    result = movedNode.moveLeft();
+                    break;
+                case RIGHT:
+                    result = movedNode.moveRight();
+                    break;
+            }
+
+            stringRepresentationOfThisMove += tableWithCurrentToString(null);
+
+            result.setStringRepresentation(stringRepresentationOfThisMove);
+
+
+            return result;
+        }
+
+        @Override
+        public String toString(){
+            return stringRepresentation;
+        }
+
+        private void setStringRepresentation(String stringRepresentation) {
+            this.stringRepresentation = stringRepresentation;
         }
     }
 
@@ -211,6 +268,26 @@ abstract public class Board {
                 }
 
             return new Move(MoveState.CAN_NOT_MOVE);
+        }
+
+        @Override
+        public String toString(){
+            return String.format("(%d,%d)",i,j);
+        }
+
+        private ArrayList<PossibleMove> getPossibleMoves() {
+            ArrayList<PossibleMove> result = new ArrayList<>();
+
+            if (this.canMoveUp())
+                result.add(new Move(this, MoveState.UP));
+            if (this.canMoveDown())
+                result.add(new Move(this, MoveState.DOWN));
+            if (this.canMoveLeft())
+                result.add(new Move(this, MoveState.LEFT));
+            if (this.canMoveRight())
+                result.add(new Move(this, MoveState.RIGHT));
+
+            return result;
         }
     }
 
